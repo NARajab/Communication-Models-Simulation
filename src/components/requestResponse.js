@@ -131,10 +131,6 @@ function RequestResponse({ setIsSimulationRunning }) {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      <h1 style={{ color: "#333", fontSize: "24px" }}>
-        Request-Response Simulation
-      </h1>
-
       <canvas
         ref={canvasRef}
         width={500}

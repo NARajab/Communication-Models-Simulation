@@ -187,10 +187,6 @@ function PublishSubscribe({ setIsSimulationRunning }) {
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1 style={{ color: "#333", fontFamily: "Arial, sans-serif" }}>
-        Publish-Subscribe Simulation
-      </h1>
-
       <canvas
         ref={canvasRef}
         width={600}
