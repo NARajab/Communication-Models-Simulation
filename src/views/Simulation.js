@@ -2,6 +2,13 @@ import React, { useState } from "react";
 import RequestResponse from "../components/requestResponse";
 import PublishSubscribe from "../components/publishSubscribe";
 
+/**
+ * Komponen Simulation
+ * Komponen ini menampilkan simulasi dua model komunikasi dalam sistem terdistribusi:
+ * 1. Model Request-Response
+ * 2. Model Publish-Subscribe
+ */
+
 function Simulation() {
   // eslint-disable-next-line no-unused-vars
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);

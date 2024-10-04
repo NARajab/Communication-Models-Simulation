@@ -5,24 +5,49 @@ import subscriber2 from "../images/2.png";
 import messageImage from "../images/message.png";
 import routerImage from "../images/brocker.png";
 
+/**
+ * Komponen PublishSubscribe
+ *
+ * Komponen ini mensimulasikan model komunikasi Publish-Subscribe dalam sistem terdistribusi.
+ * Dalam simulasi ini, pengguna dapat menerbitkan pesan dari penerbit (Publisher) ke beberapa
+ * pelanggan (Subscribers) melalui router.
+ *
+ * Fitur utama:
+ * - Menggambar elemen visual (Publisher, Router, Subscriber) pada canvas.
+ * - Menampilkan proses penerbitan pesan dari Publisher ke Router dan meneruskan pesan
+ *   ke Subscribers dengan animasi.
+ * - Menampilkan pesan yang diterima oleh Subscribers.
+ *
+ * Props:
+ * - setIsSimulationRunning: Fungsi untuk mengubah status simulasi (berjalan/berhenti).
+ */
+
+// Komponen utama untuk simulasi Publish-Subscribe
 function PublishSubscribe({ setIsSimulationRunning }) {
+  // Ref untuk elemen canvas
   const canvasRef = useRef(null);
+
+  // State untuk pesan yang diterima dan status pemuatan gambar
   const [receivedMessages, setReceivedMessages] = useState([]);
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
+  // State untuk objek gambar
   const [publisherImage] = useState(new Image());
   const [subscriber1Image] = useState(new Image());
   const [subscriber2Image] = useState(new Image());
   const [messageImg] = useState(new Image());
   const [routerImageObj] = useState(new Image());
 
+  // Memuat gambar dan memperbarui status pemuatan
   useEffect(() => {
+    // Mengatur sumber gambar
     publisherImage.src = publisher;
     subscriber1Image.src = subscriber1;
     subscriber2Image.src = subscriber2;
     messageImg.src = messageImage;
     routerImageObj.src = routerImage;
 
+    // Mengatur imagesLoaded menjadi true saat semua gambar sudah dimuat
     publisherImage.onload =
       subscriber1Image.onload =
       subscriber2Image.onload =
@@ -39,10 +64,12 @@ function PublishSubscribe({ setIsSimulationRunning }) {
     routerImageObj,
   ]);
 
+  // Fungsi untuk menggambar komponen sistem di canvas
   const drawSystem = (ctx) => {
+    // Menghapus canvas
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    // Draw Publisher
+    // Menggambar Publisher
     if (imagesLoaded) {
       ctx.drawImage(publisherImage, 50, 50, 120, 50);
     }
@@ -50,7 +77,7 @@ function PublishSubscribe({ setIsSimulationRunning }) {
     ctx.font = "bold 16px Arial";
     ctx.fillText("Publisher", 50, 120);
 
-    // Draw Router (Network device)
+    // Menggambar Router
     if (imagesLoaded) {
       ctx.drawImage(routerImageObj, 250, 60, 80, 80);
     }
@@ -58,7 +85,7 @@ function PublishSubscribe({ setIsSimulationRunning }) {
     ctx.font = "bold 16px Arial";
     ctx.fillText("Router", 263, 150);
 
-    // Draw Subscribers
+    // Menggambar Subscribers
     if (imagesLoaded) {
       ctx.drawImage(subscriber1Image, 450, 30, 120, 50);
       ctx.drawImage(subscriber2Image, 450, 110, 120, 50);
@@ -68,64 +95,71 @@ function PublishSubscribe({ setIsSimulationRunning }) {
     ctx.fillText("Subscriber 1", 460, 100);
     ctx.fillText("Subscriber 2", 460, 180);
 
-    // Optional: Draw connections
+    // Opsional: Menggambar koneksi antara komponen
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(120, 99);
-    ctx.lineTo(245, 100); // Connect Publisher to Router
+    ctx.moveTo(120, 99); // Menghubungkan Publisher ke Router
+    ctx.lineTo(245, 100);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(330, 100); // Router to Subscriber 1
+    ctx.moveTo(330, 100); // Router ke Subscriber 1
     ctx.lineTo(450, 55);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(330, 100); // Router to Subscriber 2
+    ctx.moveTo(330, 100); // Router ke Subscriber 2
     ctx.lineTo(450, 135);
     ctx.stroke();
   };
 
+  // Fungsi untuk mensimulasikan penerbitan pesan dari Publisher ke Router
   const publishMessage = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
+    // Mengatur status simulasi menjadi berjalan
     setIsSimulationRunning(true);
 
+    // Menggambar komponen sistem
     drawSystem(ctx);
 
-    let messageX = 120;
+    let messageX = 120; // Posisi awal pesan
     let messageY = 75;
 
+    // Menganimasi pesan dari Publisher ke Router
     const animatePublisherToRouter = setInterval(() => {
       drawSystem(ctx);
 
       if (imagesLoaded) {
-        // Draw custom message image (like a packet moving)
+        // Menggambar gambar pesan
         ctx.drawImage(messageImg, messageX, messageY, 30, 30);
       }
 
-      messageX += 5;
+      messageX += 5; // Memindahkan pesan ke kanan
 
+      // Memeriksa apakah pesan telah sampai ke Router
       if (messageX >= 250) {
-        clearInterval(animatePublisherToRouter);
-        forwardToSubscribers(ctx);
+        clearInterval(animatePublisherToRouter); // Menghentikan animasi
+        forwardToSubscribers(ctx); // Meneruskan pesan ke Subscribers
       }
     }, 30);
   };
 
+  // Fungsi untuk meneruskan pesan ke Subscribers
   const forwardToSubscribers = (ctx) => {
-    let messageX1 = 300;
+    let messageX1 = 300; // Reset posisi ke Router untuk Subscriber 1
     let messageY1 = 75;
 
-    // First, to Subscriber 1
+    // Posisi Subscriber 1
     const subscriber1Position = { x: 450, y: 55 };
     const angleToSubscriber1 = Math.atan2(
       subscriber1Position.y - messageY1,
       subscriber1Position.x - messageX1
     );
 
-    const speed = 7; // Adjust speed as necessary
+    const speed = 7; // Kecepatan pesan
 
+    // Menganimasi pesan ke Subscriber 1
     const interval1 = setInterval(() => {
       drawSystem(ctx);
 
@@ -136,19 +170,16 @@ function PublishSubscribe({ setIsSimulationRunning }) {
       messageX1 += speed * Math.cos(angleToSubscriber1);
       messageY1 += speed * Math.sin(angleToSubscriber1);
 
-      // Check if the message has reached Subscriber 1
+      // Memeriksa apakah pesan telah sampai ke Subscriber 1
       if (
         Math.abs(messageX1 - subscriber1Position.x) < 5 &&
         Math.abs(messageY1 - subscriber1Position.y) < 5
       ) {
-        clearInterval(interval1);
-        setReceivedMessages((prev) => [
-          ...prev,
-          "Subscriber 1 received message",
-        ]);
+        clearInterval(interval1); // Menghentikan animasi
+        setReceivedMessages((prev) => [...prev, "Subscriber 1 menerima pesan"]);
 
-        // Now send the remaining message to Subscriber 2
-        let messageX2 = 300; // Reset position to Router
+        // Sekarang kirim pesan yang tersisa ke Subscriber 2
+        let messageX2 = 300; // Reset posisi ke Router
         let messageY2 = 75;
         const subscriber2Position = { x: 450, y: 135 };
         const angleToSubscriber2 = Math.atan2(
@@ -156,6 +187,7 @@ function PublishSubscribe({ setIsSimulationRunning }) {
           subscriber2Position.x - messageX2
         );
 
+        // Menganimasi pesan ke Subscriber 2
         const interval2 = setInterval(() => {
           drawSystem(ctx);
 
@@ -166,18 +198,18 @@ function PublishSubscribe({ setIsSimulationRunning }) {
           messageX2 += speed * Math.cos(angleToSubscriber2);
           messageY2 += speed * Math.sin(angleToSubscriber2);
 
-          // Check if the message has reached Subscriber 2
+          // Memeriksa apakah pesan telah sampai ke Subscriber 2
           if (
             Math.abs(messageX2 - subscriber2Position.x) < 5 &&
             Math.abs(messageY2 - subscriber2Position.y) < 5
           ) {
-            clearInterval(interval2);
+            clearInterval(interval2); // Menghentikan animasi
             setReceivedMessages((prev) => [
               ...prev,
-              "Subscriber 2 received message",
+              "Subscriber 2 menerima pesan",
             ]);
 
-            // End the simulation after the messages are delivered
+            // Mengakhiri simulasi setelah pesan terkirim
             setIsSimulationRunning(false);
           }
         }, 50);
@@ -185,6 +217,7 @@ function PublishSubscribe({ setIsSimulationRunning }) {
     }, 50);
   };
 
+  // Render canvas dan tombol
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <canvas
@@ -217,7 +250,7 @@ function PublishSubscribe({ setIsSimulationRunning }) {
           marginRight: "auto",
         }}
       >
-        Publish Message
+        Terbitkan Pesan
       </button>
 
       <div
@@ -234,7 +267,7 @@ function PublishSubscribe({ setIsSimulationRunning }) {
         {receivedMessages.length > 0 ? (
           receivedMessages.map((msg, index) => <p key={index}>{msg}</p>)
         ) : (
-          <p>No messages received yet.</p>
+          <p>Belum ada pesan yang diterima.</p>
         )}
       </div>
     </div>

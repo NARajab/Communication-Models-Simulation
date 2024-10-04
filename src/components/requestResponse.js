@@ -1,44 +1,68 @@
 import React, { useRef, useState, useEffect } from "react";
-import client from "../images/client.png";
-import internet from "../images/internet.png";
-import server from "../images/server.png";
+import client from "../images/client.png"; // Mengimpor gambar klien
+import internet from "../images/internet.png"; // Mengimpor gambar internet
+import server from "../images/server.png"; // Mengimpor gambar server
+
+/**
+ * Komponen RequestResponse
+ *
+ * Komponen ini mensimulasikan model komunikasi Request-Response dalam sistem terdistribusi.
+ * Dalam simulasi ini, pengguna dapat mengirimkan permintaan dari klien ke server
+ * melalui internet dan menerima respons dari server.
+ *
+ * Fitur utama:
+ * - Menggambar elemen visual (klien, server, internet) pada canvas.
+ * - Menampilkan proses pengiriman permintaan dan penerimaan respons dengan animasi.
+ * - Menghitung dan menampilkan waktu respons.
+ *
+ * Props:
+ * - setIsSimulationRunning: Fungsi untuk mengubah status simulasi (berjalan/berhenti).
+ */
 
 function RequestResponse({ setIsSimulationRunning }) {
-  const canvasRef = useRef(null);
-  const [responseTime, setResponseTime] = useState(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const canvasRef = useRef(null); // Referensi ke elemen canvas
+  const [responseTime, setResponseTime] = useState(null); // State untuk menyimpan waktu respons
+  const [imageLoaded, setImageLoaded] = useState(false); // State untuk mengecek apakah gambar telah dimuat
 
+  // Membuat objek gambar untuk klien, server, dan internet
   const clientImage = new Image();
   const serverImage = new Image();
   const internetImage = new Image();
 
+  // Mengatur sumber gambar
   clientImage.src = client;
   serverImage.src = server;
   internetImage.src = internet;
 
   useEffect(() => {
+    // Mengatur event onload untuk memastikan gambar telah dimuat sebelum digambar di canvas
     clientImage.onload = () => setImageLoaded(true);
     serverImage.onload = () => setImageLoaded(true);
     internetImage.onload = () => setImageLoaded(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Fungsi untuk menggambar elemen klien, server, dan internet di canvas.
+   * @param {CanvasRenderingContext2D} ctx - Konteks canvas untuk menggambar.
+   */
   const drawClientServerInternet = (ctx) => {
-    // Clear the canvas
+    // Menghapus isi canvas
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
     if (imageLoaded) {
+      // Menggambar gambar klien, server, dan internet
       ctx.drawImage(clientImage, 50, 80, 100, 50);
-
       ctx.drawImage(internetImage, 200, 60, 80, 80);
-
       ctx.drawImage(serverImage, 350, 80, 100, 50);
     } else {
+      // Menampilkan teks jika gambar masih dalam proses pemuatan
       ctx.fillStyle = "black";
       ctx.font = "bold 16px Arial";
       ctx.fillText("Loading images...", 180, 100);
     }
 
+    // Menggambar garis antara klien dan server
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -49,6 +73,7 @@ function RequestResponse({ setIsSimulationRunning }) {
     ctx.lineTo(350, 105);
     ctx.stroke();
 
+    // Menggambar panah untuk menunjukkan arah komunikasi
     ctx.beginPath();
     ctx.moveTo(200, 100);
     ctx.lineTo(190, 95);
@@ -62,65 +87,71 @@ function RequestResponse({ setIsSimulationRunning }) {
     ctx.fill();
   };
 
+  /**
+   * Fungsi untuk mengirim permintaan dari klien ke server.
+   * Mengaktifkan simulasi, menggambar elemen, dan menghitung waktu respons.
+   */
   const sendRequest = () => {
-    setIsSimulationRunning(true);
+    setIsSimulationRunning(true); // Menandai simulasi sedang berjalan
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Menghapus canvas sebelum menggambar
 
-    drawClientServerInternet(ctx);
+    drawClientServerInternet(ctx); // Menggambar elemen klien, server, dan internet
 
-    const startTime = new Date().getTime();
+    const startTime = new Date().getTime(); // Menandai waktu mulai pengiriman
     ctx.fillStyle = "#0000ff";
     ctx.font = "16px Arial";
-    ctx.fillText("Sending request...", 10, 30);
+    ctx.fillText("Sending request...", 10, 30); // Menampilkan status pengiriman
 
-    let requestX = 150;
+    let requestX = 150; // Posisi horizontal awal untuk permintaan
     const interval = setInterval(() => {
-      ctx.clearRect(0, 0, canvas.width, 60);
+      ctx.clearRect(0, 0, canvas.width, 60); // Menghapus area status
       ctx.fillStyle = "#0000ff";
       ctx.font = "16px Arial";
-      ctx.fillText("Sending request...", 10, 30);
+      ctx.fillText("Sending request...", 10, 30); // Menampilkan status pengiriman
 
-      drawClientServerInternet(ctx);
+      drawClientServerInternet(ctx); // Menggambar elemen
 
-      ctx.fillStyle = "blue";
+      ctx.fillStyle = "blue"; // Menggambar permintaan
       ctx.fillRect(requestX, 100, 20, 10);
-      requestX += 5;
+      requestX += 5; // Memindahkan posisi permintaan ke kanan
 
       if (requestX >= 350) {
-        clearInterval(interval);
+        // Jika permintaan mencapai server
+        clearInterval(interval); // Menghentikan interval pengiriman
 
         setTimeout(() => {
-          const endTime = new Date().getTime();
-          const delay = (endTime - startTime) / 1000;
-          setResponseTime(delay);
+          const endTime = new Date().getTime(); // Menandai waktu akhir
+          const delay = (endTime - startTime) / 1000; // Menghitung waktu respons
+          setResponseTime(delay); // Mengatur waktu respons
 
-          let responseX = 350;
+          let responseX = 350; // Posisi horizontal awal untuk respons
           const responseInterval = setInterval(() => {
-            ctx.clearRect(0, 0, canvas.width, 60);
+            ctx.clearRect(0, 0, canvas.width, 60); // Menghapus area status
             ctx.fillStyle = "#008000";
             ctx.font = "16px Arial";
-            ctx.fillText("Response received!", 10, 30);
+            ctx.fillText("Response received!", 10, 30); // Menampilkan status respons diterima
 
-            drawClientServerInternet(ctx);
+            drawClientServerInternet(ctx); // Menggambar elemen
 
-            ctx.fillStyle = "green";
+            ctx.fillStyle = "green"; // Menggambar respons
             ctx.fillRect(responseX, 100, 20, 10);
-            responseX -= 5;
+            responseX -= 5; // Memindahkan posisi respons ke kiri
 
             if (responseX <= 150) {
-              clearInterval(responseInterval);
+              // Jika respons kembali ke klien
+              clearInterval(responseInterval); // Menghentikan interval respons
             }
           }, 30);
-        }, 2000);
+        }, 2000); // Delay sebelum respons diterima
       }
-    }, 30);
+    }, 30); // Interval pengiriman permintaan
     setTimeout(() => {
-      setResponseTime(2.5); // Contoh response time
-      setIsSimulationRunning(false); // Set simulation running to false ketika selesai
-    }, 3000);
+      setResponseTime(2.5); // Contoh waktu respons
+      setIsSimulationRunning(false); // Menandai simulasi tidak berjalan
+    }, 3000); // Menentukan waktu total simulasi
   };
 
   return (
